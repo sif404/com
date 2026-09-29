@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: comfora-api
+    runtime: node
+    plan: free
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build
+    startCommand: pnpm --filter @workspace/api-server run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: comfora-db
+          property: connectionString
+      - key: SHEETS_WEBHOOK_URL
+        sync: false
+      - key: SHEETS_WEBHOOK_TOKEN
+        sync: false
+
+  - type: web
+    name: comfora-storefront
+    runtime: static
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/comfora-storefront run build
+    staticPublishPath: artifacts/comfora-storefront/dist/public
+    envVars:
+      - key: PORT
+        value: "3000"
+      - key: BASE_PATH
+        value: /
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://comfora-api.onrender.com/api/*
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+databases:
+  - name: comfora-db
+    plan: free
