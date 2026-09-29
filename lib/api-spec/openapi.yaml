@@ -1,0 +1,218 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: orders
+    description: Customer order operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /orders:
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Create a customer order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Invalid order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /orders/{orderToken}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get an order by its private token
+      parameters:
+        - name: orderToken
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    OrderPair:
+      type: object
+      properties:
+        color:
+          type: string
+          enum: [أبيض, أسود, برتقالي]
+        size:
+          type: string
+          enum: [35-36, 37-38, 39-40, 41-42, 43-44, 45-46]
+      required:
+        - color
+        - size
+    OrderInput:
+      type: object
+      properties:
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 80
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 80
+        phone:
+          type: string
+          pattern: "^(07[789][0-9]{7}|\\+9627[789][0-9]{7})$"
+        address:
+          type: string
+          minLength: 3
+          maxLength: 240
+        city:
+          type: string
+          enum: [عمّان, إربد, الزرقاء, البلقاء, الكرك, معان, المفرق, الطفيلة, مادبا, جرش, عجلون, العقبة]
+        pairs:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            $ref: "#/components/schemas/OrderPair"
+        paymentMethod:
+          type: string
+          enum: [cash_on_delivery]
+        discountCode:
+          type: string
+          maxLength: 40
+        honeypot:
+          type: string
+          maxLength: 120
+      required:
+        - firstName
+        - lastName
+        - phone
+        - address
+        - city
+        - pairs
+        - paymentMethod
+    Order:
+      type: object
+      properties:
+        orderNumber:
+          type: integer
+        orderToken:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        pairs:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderPair"
+        itemsText:
+          type: string
+        subtotal:
+          type: number
+        discount:
+          type: number
+        shipping:
+          type: string
+        total:
+          type: number
+        paymentMethod:
+          type: string
+        deliveryTagline:
+          type: string
+        deliveryDays:
+          type: string
+        deliveryDate:
+          type: string
+      required:
+        - orderNumber
+        - orderToken
+        - createdAt
+        - firstName
+        - lastName
+        - phone
+        - address
+        - city
+        - pairs
+        - itemsText
+        - subtotal
+        - discount
+        - shipping
+        - total
+        - paymentMethod
+        - deliveryTagline
+        - deliveryDays
+        - deliveryDate
+

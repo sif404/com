@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Comfora Orthopedic Insoles Store"
+description = "Arabic-first mobile storefront for Comfora orthopedic insoles with quantity pricing, cart interactions, cash-on-delivery checkout, and customer order confirmation."
+version = "1.0.0"
+id = "artifacts/comfora-storefront"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25375
+
+[services.development]
+run = "pnpm --filter @workspace/comfora-storefront run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/comfora-storefront", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/comfora-storefront/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25375"
+BASE_PATH = "/"
