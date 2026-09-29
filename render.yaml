@@ -3,7 +3,7 @@ services:
     name: comfora-api
     runtime: node
     plan: free
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build
+    buildCommand: npm install -g pnpm@10 && pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build
     startCommand: pnpm --filter @workspace/api-server run start
     envVars:
       - key: NODE_ENV
@@ -20,7 +20,7 @@ services:
   - type: web
     name: comfora-storefront
     runtime: static
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/comfora-storefront run build
+    buildCommand: npm install -g pnpm@10 && pnpm install --frozen-lockfile && pnpm --filter @workspace/comfora-storefront run build
     staticPublishPath: artifacts/comfora-storefront/dist/public
     envVars:
       - key: PORT
@@ -38,3 +38,4 @@ services:
 databases:
   - name: comfora-db
     plan: free
+
