@@ -15,3 +15,6 @@ createRoot(document.getElementById('root')!, {
     <App />
   </ErrorBoundary>,
 );
+
+// Wake the API (free hosting sleeps when idle) while the customer browses
+fetch('/api/healthz').catch(() => {});
